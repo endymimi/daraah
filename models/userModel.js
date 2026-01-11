@@ -52,7 +52,7 @@ const userSchema = new Schema(
 );
 
 // hashing password
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) return ; // skip hashing if not changed
 
   const salt = await bcrypt.genSalt();

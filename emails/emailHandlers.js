@@ -1,26 +1,30 @@
 import { createTransport } from "nodemailer";
 import { resetPasswordEmailTemplate } from "./emailTemplate.js";
 
-export const sendForgotPasswordMail = async (options) => {
+export const sendForgotPasswordMail = async ({ to, firstName, resetUrl }) => {
   const transporter = createTransport({
-    host: "smtp.hostinger.com",   // ✅ REQUIRED
-    port: 587,                   // ✅ REQUIRED
-    secure: false,               // true only for port 465
+    host: "smtp.hostinger.com",
+    port: 587,
+    secure: false,
     auth: {
       user: process.env.EMAIL_USERNAME,
       pass: process.env.EMAIL_PASSWORD,
     },
+    tls: {
+      rejectUnauthorized: false,
+    },
   });
+
+  // 🔍 Verify SMTP connection
+  await transporter.verify();
 
   const mailOptions = {
     from: `"Daraah Support" <${process.env.EMAIL_USERNAME}>`,
-    to: options.to,
-    subject: "Reset Password",
-    html: resetPasswordEmailTemplate(
-      options.firstName,
-      options.resetUrl
-    ),
+    to,
+    subject: "Reset Your Password",
+    html: resetPasswordEmailTemplate(firstName, resetUrl),
   };
 
-  return await transporter.sendMail(mailOptions);
+  return transporter.sendMail(mailOptions);
 };
+
