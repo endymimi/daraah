@@ -4,15 +4,13 @@ import { resetPasswordEmailTemplate } from "./emailTemplate.js";
 export const sendForgotPasswordMail = async ({ to, firstName, resetUrl }) => {
   const transporter = createTransport({
     host: "smtp.hostinger.com",
-    port: 587,
-    secure: false,
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL_USERNAME,
       pass: process.env.EMAIL_PASSWORD,
     },
-    tls: {
-      rejectUnauthorized: false,
-    },
+   
   });
 
   // 🔍 Verify SMTP connection
