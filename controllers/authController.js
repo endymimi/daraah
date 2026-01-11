@@ -87,52 +87,54 @@ export const signIn = async (req, res) => {
   }
 };
 
-
 export const forgotPassword = async (req, res) => {
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({
-      success: false,
-      errMsg: "Email is required",
-    });
-  }
-
-  const user = await USER.findOne({ email });
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      errMsg: "Email not found",
-    });
-  }
-
   try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        errMsg: "Email is required",
+      });
+    }
+
+    const user = await USER.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        errMsg: "Email not found",
+      });
+    }
+
     const resetToken = user.getResetPasswordToken();
-    await user.save();
+    await user.save({ validateBeforeSave: false });
 
     const resetUrl = `${process.env.CLIENT_URL_RESET}/${resetToken}`;
 
-    await sendForgotPasswordMail({
-      to: user.email,
-      firstName: user.firstName,
-      resetUrl,
-    });
-
-    return res.status(200).json({
+    // 🚀 Respond immediately
+    res.status(200).json({
       success: true,
       message: "Password reset email sent",
     });
-  } catch (error) {
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-    await user.save();
 
+    // 📧 Send email in background
+    sendForgotPasswordMail({
+      to: user.email,
+      firstName: user.firstName,
+      resetUrl,
+    }).catch(err => {
+      console.error("Email error:", err);
+    });
+
+  } catch (error) {
+    console.error(error);
     return res.status(500).json({
       success: false,
-      errMsg: "Email could not be sent",
+      errMsg: "Something went wrong",
     });
   }
 };
+
 
 
 //reset password ftn 
