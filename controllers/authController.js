@@ -78,8 +78,14 @@ export const signIn = async (req, res) => {
         .json({
           success: true,
           message: "signed in successfully",
-          user: { role: user.role, firstName: user.firstName, token },
-        });
+          user: {
+            role: user.role,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            token,
+            },
+          });
       return;
     }
   } catch (error) {
