@@ -100,15 +100,15 @@ export const forgotPassword = async (req, res) => {
     if (!email) {
       return res.status(400).json({
         success: false,
-        errMsg: "Email is required",
+        message: "Email is required",
       });
     }
 
     const user = await USER.findOne({ email });
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        errMsg: "Email not found",
+      return res.status(200).json({
+        success: true,
+        message: "If the email exists, a reset link has been sent",
       });
     }
 
@@ -117,29 +117,26 @@ export const forgotPassword = async (req, res) => {
 
     const resetUrl = `${process.env.CLIENT_URL_RESET}/${resetToken}`;
 
-    // 🚀 Respond immediately
-    res.status(200).json({
+    await sendForgotPasswordMail({
+      to: user.email,
+      firstName: user.firstName,
+      resetUrl,
+    });
+
+    return res.status(200).json({
       success: true,
       message: "Password reset email sent",
     });
 
-    // 📧 Send email in background
-    sendForgotPasswordMail({
-      to: user.email,
-      firstName: user.firstName,
-      resetUrl,
-    }).catch(err => {
-      console.error("Email error:", err);
-    });
-
   } catch (error) {
-    console.error(error);
+    console.error("Forgot password error:", error);
     return res.status(500).json({
       success: false,
-      errMsg: "Something went wrong",
+      message: "Unable to process password reset",
     });
   }
 };
+
 
 
 
