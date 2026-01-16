@@ -1,5 +1,8 @@
 import { createTransport } from "nodemailer";
 import { resetPasswordEmailTemplate } from "./emailTemplate.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const sendForgotPasswordMail = async ({ to, firstName, resetUrl }) => {
   const transporter = createTransport({

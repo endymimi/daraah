@@ -35,9 +35,18 @@ export const signUp = async (req, res) => {
     }
 
     const user = await USER.create({ ...req.body });
-    res
-      .status(201)
-      .json({ success: true, message: "registration successful", user });
+    res.status(201).json({
+      success: true,
+      message: "registration successful",
+      user: {
+        id: user._id,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+    });
+
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -84,8 +93,8 @@ export const signIn = async (req, res) => {
             lastName: user.lastName,
             email: user.email,
             token,
-            },
-          });
+          },
+        });
       return;
     }
   } catch (error) {
