@@ -7,13 +7,13 @@ dotenv.config();
 export const sendForgotPasswordMail = async ({ to, firstName, resetUrl }) => {
   const transporter = createTransport({
     host: "smtp.hostinger.com",
-    port: 465,
-    secure: true,
+    port: 587,
+    secure: false, // must be false for 587
     auth: {
       user: process.env.EMAIL_USERNAME,
       pass: process.env.EMAIL_PASSWORD,
     },
-   
+    requireTLS: true, // ensures STARTTLS
   });
 
   // 🔍 Verify SMTP connection
@@ -28,4 +28,3 @@ export const sendForgotPasswordMail = async ({ to, firstName, resetUrl }) => {
 
   return transporter.sendMail(mailOptions);
 };
-
