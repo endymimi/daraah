@@ -34,6 +34,7 @@ const userSchema = new Schema(
       type: String,
       trim: true,
       minlength: [8, "min password length must be 8 chrs"],
+      select: false,
       validate(value) {
         if (value.toLowerCase().includes("password")) {
           throw new Error("password must not contain password");
@@ -53,11 +54,11 @@ const userSchema = new Schema(
 
 // hashing password
 userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return ; // skip hashing if not changed
+  if (!this.isModified("password")) return; // skip hashing if not changed
 
   const salt = await bcrypt.genSalt();
   this.password = await bcrypt.hash(this.password, salt);
-  
+
 });
 
 
@@ -67,20 +68,26 @@ userSchema.methods.comparePassword = async function (userPassword) {
 };
 
 //generating jwt token
-userSchema.methods.generateToken = async function (params) {
-  let token = jwt.sign(
+userSchema.methods.generateToken = function () {
+  return jwt.sign(
     { userId: this._id, role: this.role, firstName: this.firstName },
     process.env.JWT_SECRET,
     { expiresIn: "24h" }
   );
-  return token;
 };
+
 
 // generating resetpassword token
 userSchema.methods.getResetPasswordToken = function () {
-  const resetToken = crypto.randomBytes(20).toString("hex");
-  this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
   this.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 mins
+
   return resetToken;
 };
 

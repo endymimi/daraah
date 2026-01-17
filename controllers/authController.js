@@ -3,6 +3,7 @@ import { sendForgotPasswordMail } from "../emails/emailHandlers.js";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
+
 //sign up
 
 export const signUp = async (req, res) => {
@@ -151,26 +152,53 @@ export const forgotPassword = async (req, res) => {
 
 //reset password ftn 
 export const resetPassword = async (req, res) => {
-  const resetPasswordToken = crypto.createHash("sha256").update(req.params.resetToken).digest("hex");
   try {
-    const user = await USER.findOne({
-      resetPasswordToken,
-      resetPasswordExpire: { $gt: Date.now() }
-    })
-    if (!user) {
-      res.status(400).json({ status: false, errMsg: "invalid reset token" });
-      return;
+    const { resetToken } = req.params;
+    const { password } = req.body;
+
+    if (!password || password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters",
+      });
     }
-    user.password = req.body.password;
+
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    const user = await USER.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired reset token",
+      });
+    }
+
+    user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
+
     await user.save();
-    res.status(201).json({ success: true, message: "Password Reset successful" })
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successful",
+    });
+
   } catch (error) {
-    res.status(500).json(error.message);
+    console.error("Reset password error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Password reset failed",
+    });
   }
 };
-
 
 
 // isLogged functiom
