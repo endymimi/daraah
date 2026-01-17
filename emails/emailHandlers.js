@@ -1,30 +1,25 @@
 import { createTransport } from "nodemailer";
 import { resetPasswordEmailTemplate } from "./emailTemplate.js";
 import dotenv from "dotenv";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 dotenv.config();
 
-export const sendForgotPasswordMail = async ({ to, firstName, resetUrl }) => {
-  const transporter = createTransport({
-    host: "smtp.hostinger.com",
-    port: 587,
-    secure: false, // must be false for 587
-    auth: {
-      user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-    requireTLS: true, // ensures STARTTLS
-  });
-
-  // 🔍 Verify SMTP connection
-  await transporter.verify();
-
-  const mailOptions = {
-    from: `"Daraah Support" <${process.env.EMAIL_USERNAME}>`,
+export const sendForgotPasswordMail = async ({
+  to,
+  firstName,
+  resetUrl,
+}) => {
+  await resend.emails.send({
+    from: "Daraah <onboarding@resend.dev>", // 👈 HERE
     to,
-    subject: "Reset Your Password",
-    html: resetPasswordEmailTemplate(firstName, resetUrl),
-  };
-
-  return transporter.sendMail(mailOptions);
+    subject: "Reset your password",
+    html: `
+      <p>Hello ${firstName},</p>
+      <p>Click the link below to reset your password:</p>
+      <a href="${resetUrl}">Reset Password</a>
+    `,
+  });
 };

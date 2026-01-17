@@ -4,6 +4,7 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
 
+
 //sign up
 
 export const signUp = async (req, res) => {
@@ -126,6 +127,9 @@ export const forgotPassword = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     const resetUrl = `${process.env.CLIENT_URL_RESET}/${resetToken}`;
+
+    console.log("RESET URL:", resetUrl);
+
 
     await sendForgotPasswordMail({
       to: user.email,
