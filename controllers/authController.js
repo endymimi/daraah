@@ -57,52 +57,52 @@ export const signUp = async (req, res) => {
 
 export const signIn = async (req, res) => {
   const { email, password } = req.body;
+
   try {
     if (!email || !password) {
-      res
-        .status(400)
-        .json({ success: false, errMsg: "all fields are required to sign in" });
-      return;
+      return res.status(400).json({
+        success: false,
+        errMsg: "all fields are required to sign in",
+      });
     }
 
-    //finding a registered email address
+    const user = await USER.findOne({ email }).select("+password");
 
-    const user = await USER.findOne({ email });
     if (!user) {
-      res.status(404).json({ success: false, errMsg: "user not found" });
-      return;
+      return res.status(404).json({
+        success: false,
+        errMsg: "user not found",
+      });
     }
 
-    // comparing password and validating password
     const isMatch = await user.comparePassword(password);
+
     if (!isMatch) {
-      res
-        .status(404)
-        .json({ success: false, errMsg: "Email or Password is incorrect" });
-      return;
+      return res.status(401).json({
+        success: false,
+        errMsg: "Email or Password is incorrect",
+      });
     }
-    //generating token
-    const token = await user.generateToken();
-    if (token) {
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "signed in successfully",
-          user: {
-            role: user.role,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            token,
-          },
-        });
-      return;
-    }
+
+    const token = user.generateToken();
+
+    res.status(200).json({
+      success: true,
+      message: "signed in successfully",
+      user: {
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        token,
+      },
+    });
+
   } catch (error) {
-    res.status(500).json(error.message);
+    res.status(500).json({ message: error.message });
   }
 };
+
 
 export const forgotPassword = async (req, res) => {
   try {
