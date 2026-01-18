@@ -17,6 +17,9 @@ export const sendForgotPasswordMail = async ({ to, firstName, resetUrl }) => {
   });
 
   // 🔍 Verify SMTP connection
+  console.log("SMTP USER:", process.env.EMAIL_USERNAME);
+console.log("SMTP PASS EXISTS:", !!process.env.EMAIL_PASSWORD);
+
   await transporter.verify();
 
   const mailOptions = {

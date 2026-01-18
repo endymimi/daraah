@@ -2,6 +2,9 @@ import USER from "../models/userModel.js";
 import { sendForgotPasswordMail } from "../emails/emailHandlers.js";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import transporter from "../config/mailer.js";
+import { resetPasswordEmailTemplate } from "../emails/emailTemplate.js"; // your HTML template
+
 
 
 
@@ -104,53 +107,57 @@ export const signIn = async (req, res) => {
 };
 
 
+
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
+    console.log("[Forgot Password] Request received for:", email);
 
     if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is required",
-      });
+      return res.status(400).json({ success: false, message: "Email is required" });
     }
 
     const user = await USER.findOne({ email });
+    console.log("[Forgot Password] User found:", !!user);
+
     if (!user) {
+      // Do not reveal if email exists
       return res.status(200).json({
         success: true,
         message: "If the email exists, a reset link has been sent",
       });
     }
 
+    // Generate reset token
     const resetToken = user.getResetPasswordToken();
     await user.save({ validateBeforeSave: false });
 
     const resetUrl = `${process.env.CLIENT_URL_RESET}/${resetToken}`;
+    console.log("[Forgot Password] Reset URL:", resetUrl);
 
-    console.log("RESET URL:", resetUrl);
-
-
-    await sendForgotPasswordMail({
+    // Send email
+    await transporter.sendMail({
+      from: `"Daraah Limited" <${process.env.EMAIL_USERNAME}>`,
       to: user.email,
-      firstName: user.firstName,
-      resetUrl,
+      subject: "Reset Your Password",
+      html: resetPasswordEmailTemplate(user.firstName, resetUrl),
     });
 
+    console.log("[Forgot Password] Email sent successfully");
     return res.status(200).json({
       success: true,
-      message: "Password reset email sent",
+      message: "Password reset email sent successfully",
     });
 
   } catch (error) {
-    console.error("Forgot password error:", error);
+    console.error("[Forgot Password] Error:", error);
     return res.status(500).json({
       success: false,
       message: "Unable to process password reset",
+      error: error.message, // optional: remove in production for security
     });
   }
 };
-
 
 
 
