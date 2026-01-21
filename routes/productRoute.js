@@ -1,20 +1,26 @@
 import express from "express";
-import { createProduct, Products, allProducts, productById, updateProduct, deleteProduct } from "../controllers/productController.js";
+import upload  from "../middleware/multer.js";
+import { createProduct, createMultipleProducts, allProducts,  getSingleProduct, updateProduct, deleteProduct } from "../controllers/productController.js";
 const router = express.Router();
 
-// post request
-router.post("/create", createProduct);
+// create single product
+router.post("/create", upload.array("images", 5), createProduct);
+
 // insert many
-router.post("/products", Products);
+router.post("/products", createMultipleProducts);
 
 // all products
 router.get("/all-products", allProducts);
 
 // single product
-router.get("/:productId", productById);
+router.get("/:productId", getSingleProduct);
 
 // update product
-router.put("/:productId/update", updateProduct);
+router.put(
+  "/:productId",
+  upload.array("images", 5),
+  updateProduct
+);
 
 // delete product
 router.delete("/:productId/delete", deleteProduct);

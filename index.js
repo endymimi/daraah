@@ -12,9 +12,7 @@ const app = express();
 app.use(cors())
 dotenv.config()
 
-console.log("EMAIL_USERNAME:", process.env.EMAIL_USERNAME);
-console.log("EMAIL_PASSWORD exists:", !!process.env.EMAIL_PASSWORD);
-
+// serve uploaded images
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
