@@ -12,11 +12,10 @@ const auth = async (req, res, next) => {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Attach user info (no more role)
     req.user = {
       userId: payload.userId,
-      fullName: payload.fullName,
-      email: payload.email,
+      role: payload.role,          // ✅ REQUIRED
+      firstName: payload.firstName,
     };
 
     next();

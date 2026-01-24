@@ -5,6 +5,7 @@ import cors from "cors"
 import authRoute from "./routes/authRoute.js"
 import productRoute from "./routes/productRoute.js"
 import paymentRoutes from "./routes/paymentRoute.js";
+import orderRoute from "./routes/orderRoute.js";
 
 
 
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/api/auth", authRoute);
 app.use("/api/product", productRoute);
 app.use("/api/payment", paymentRoutes)
+app.use("/api/order", orderRoute);
 
 
 
