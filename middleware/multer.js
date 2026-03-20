@@ -13,7 +13,6 @@ cloudinary.config({
 
     
 });
-console.log("Cloudinary:", process.env.CLOUDINARY_CLOUD_NAME);
 
 // Configure Multer Storage for Cloudinary
 const storage = new CloudinaryStorage({

@@ -25,26 +25,26 @@ app.use("/api/order", orderRoute);
 
 
 
-app.get("/",(req,res)=>{
-    res.status(200).json({success:true, message:"server is live"})
+app.get("/", (req, res) => {
+    res.status(200).json({ success: true, message: "server is live" })
 })
 
 
-app.use((req,res)=>{
-    res.status(404).json({success:false,errMsg:"route not found"})
+app.use((req, res) => {
+    res.status(404).json({ success: false, errMsg: "route not found" })
 })
 
 connect()
-.then( ( )=>{
-    try {
-        app.listen(port,()=>{
-            console.log(`http://localhost:${port}`);
-        })
-    } catch (error) {
-        console.log("can not connect to server" + error.message);
-    }
-})
-.catch((error)=>{
-    console.log("invalid database connection" + error.message);
-    
-})
+    .then(() => {
+        try {
+            app.listen(port,() => {
+                console.log(`Server running at http://localhost:${port}`);
+            });
+        } catch (error) {
+            console.log("can not connect to server" + error.message);
+        }
+    })
+    .catch((error) => {
+        console.log("invalid database connection" + error.message);
+
+    })
